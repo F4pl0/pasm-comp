@@ -8,13 +8,13 @@
 #ifndef PASM_COMP_UTILS_H
 #define PASM_COMP_UTILS_H
 
-extern bool v_output;
+extern bool set_verbose;
 
 // Verbose printing
 void printv(const char* format,...) {
 
     // Print only in verbose mode
-    if (!v_output)
+    if (!set_verbose)
         return;
 
     va_list args;
