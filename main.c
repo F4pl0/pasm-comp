@@ -10,7 +10,10 @@ enum {
 } Flag;
 
 char *SOURCE_FILE_NAME = "";
-bool v_output = false;
+bool set_verbose = false;
+bool set_input_file = false;
+
+void printUsage();
 
 /* Let's assume the user would use the flags which contain a certain value as
  *  pasm -f file.c
@@ -24,12 +27,19 @@ int main(int argc, char *argv[]) {
         if (nextFLag == FLAG_FILE) {
             SOURCE_FILE_NAME = argv[i];
             nextFLag = (enum Flag) NULL;
+            set_input_file = true;
         } else if (strcmp(argv[i], "-f") == 0) {
             nextFLag = FLAG_FILE;
         } else if (strcmp(argv[i], "-v") == 0) {
-            v_output = true;
-            //printv("Verbose mode enabled.\n");
+            set_verbose = true;
         }
+    }
+
+    // Check for input file
+    if (!set_input_file) {
+        printe("missing source file.");
+        printUsage();
+        return 1;
     }
 
     // Load in the source file
@@ -38,10 +48,10 @@ int main(int argc, char *argv[]) {
 
     // Check if the file is open
     if ( !source_file ) {
-        printf("Unable to open %s\n", SOURCE_FILE_NAME);
+        printe("Unable to open %s\n", SOURCE_FILE_NAME);
         return 1;
-    } else if ( source_file != NULL && v_output ) {
-        printf("Successfully opened %s\n", SOURCE_FILE_NAME);
+    } else {
+        printv("Successfully opened %s\n", SOURCE_FILE_NAME);
     }
 
     // Read the file and store it in temp. buffer
@@ -66,4 +76,15 @@ int main(int argc, char *argv[]) {
 
     free(buffer);
     return 0;
+}
+
+void printUsage() {
+    printf("Usage: \n");
+    printf("pasm [ATTRIBUTE] [VALUE]\n\n");
+    printf("ATTRIBUTES\n");
+    printf("-f <file>          Source code file to be compiled\n");
+    printf("-d <file>          Destination file to write to\n");
+    printf("-v                 Toggle verbose output\n\n");
+    printf("EXAMPLE\n");
+    printf("pasm -f main.c -v -d program.PCA\n");
 }

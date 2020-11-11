@@ -7,8 +7,6 @@
 #ifndef PASM_COMP_PASM_LEXER_H
 #define PASM_COMP_PASM_LEXER_H
 
-#endif //PASM_COMP_PASM_LEXER_H
-
 enum TYPES {
     TOKEN_TYPE_IDENTIFIER,
     TOKEN_TYPE_KEYWORD,
@@ -28,8 +26,8 @@ struct lexer_res {
     int tcount;
 };
 
-const char *separators = "; (){}\n\t";
-const char *operators = "+-/%=<>!&|^~?.";
+const char *separators = "; ()[]{}\n\t";
+const char *operators = "+-/*%=<>!&|^~?.";
 const char keywords[32][10] = {
         "auto",
         "break",
@@ -102,10 +100,10 @@ bool iskw(char *w) {
 bool isiden(char *w) {
     if (strlen(w) < 1)
         return false;
-    if (!isalpha(w[0]))
+    if (!(isalpha(w[0]) || w[0] == '_'))
         return false;
     for (int i = 1; i < strlen(w); ++i) {
-        if (!isalnum(w[i]))
+        if (!(isalpha(w[i]) || w[i] == '_'))
             return false;
     }
     return true;
@@ -142,10 +140,10 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
         tseq = realloc(tseq, (t_count + 1) * sizeof(Token));
         char *value = NULL;
 
-        if (isalnum(buffer[current_len])) {
+        if (isalnum(buffer[current_len]) || buffer[current_len] == '_') {
             // is Text
             int i = 0;
-            while (isalnum(buffer[current_len + i])) {
+            while (isalnum(buffer[current_len + i]) || buffer[current_len + i] == '_') {
                 i++;
                 if ((current_len + i + 1) >= buf_len) {
                     break;
@@ -256,3 +254,5 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
     lres.tcount = t_count;
     return lres;
 }
+
+#endif //PASM_COMP_PASM_LEXER_H
