@@ -3,6 +3,7 @@
 //
 
 #include <ctype.h>
+#include "utils.h"
 
 #ifndef PASM_COMP_PASM_LEXER_H
 #define PASM_COMP_PASM_LEXER_H
@@ -132,6 +133,8 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
     buf_len--;
     int current_len = 0;
     int t_count = 0;
+    int current_line = 1;
+    int current_char = 1;
 
     Token *tseq = (Token *) malloc(sizeof(Token));
 
@@ -179,13 +182,18 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
                  (buffer[current_len] == '/' && buffer[current_len + 1] == '/')) {
             // is Comment
             int i = 1;
+            bool isNewLine = true;
 
             while (buffer[current_len + i] != '\n') {
                 i++;
                 if ((current_len + i + 1) >= buf_len) {
+                    isNewLine = false;
                     break;
                 }
             }
+
+            if (isNewLine)
+                current_line++;
 
             // Assign the text to the value
             value = (char *) malloc((i + 1) * sizeof(char));
@@ -232,6 +240,10 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
             char sep = buffer[current_len];
             while (buffer[current_len + i] == sep) {
                 i++;
+
+                if (sep == '\n')
+                    current_line++;
+
                 if ((current_len + i) >= buf_len) {
                     break;
                 }
@@ -245,6 +257,10 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
             // Update the current_len
             current_len += i;
             tseq[t_count].type = TOKEN_TYPE_SEPARATOR;
+        } else {
+            // Unknown character, throw error!
+            printe("Unknown token at line %d: %c\n",current_line, buffer[current_len]);
+            exit(1);
         }
         tseq[t_count].value = value;
         t_count++;
