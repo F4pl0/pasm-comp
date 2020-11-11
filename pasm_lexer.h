@@ -28,7 +28,31 @@ struct lexer_res {
 };
 
 const char *separators = "; ()[]{}\n\t";
-const char *operators = "+-/*%=<>!&|^~?.";
+const char operators[23][3] = {
+        "++",
+        "--",
+        "+=",
+        "-=",
+        "*=",
+        "/=",
+        "<<",
+        ">>",
+        "+",
+        "-",
+        "/",
+        "*",
+        "%",
+        "=",
+        "<",
+        ">",
+        "!",
+        "&",
+        "|",
+        "^",
+        "~",
+        "?",
+        "."
+};;
 const char keywords[32][10] = {
         "auto",
         "break",
@@ -64,6 +88,7 @@ const char keywords[32][10] = {
         "while"
 };
 
+// Function to determine whether a character is a separator
 bool issep(int c) {
     for (int i = 0; i < strlen(separators); ++i) {
         if (c == separators[i])
@@ -72,14 +97,34 @@ bool issep(int c) {
     return false;
 }
 
-bool isop(int c) {
-    for (int i = 0; i < strlen(operators); ++i) {
-        if (c == operators[i])
+// Function to determine if a character is a operator
+bool isopc(int c) {
+    for (int i = 0; i < sizeof(operators)/3; ++i) {
+        if (strlen(operators[i]) == 1 && c == operators[i][0])
             return true;
     }
     return false;
 }
 
+// Function to determine whether certain combination of
+// operators is indeed a valid operator such as +=, <<, *= etc..
+bool isop(char* c) {
+    for (int i = 0; i < sizeof(operators)/3; ++i) {
+        bool match = true;
+        for (int j = 0; j < strlen(operators[i]); ++j) {
+            if (operators[i][j] != c[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match)
+            return true;
+    }
+    return false;
+}
+
+// Function to determine whether a certain combination of
+// characters are a valid keyword
 bool iskw(char *w) {
 
     for (int i = 0; i < 32; ++i) {
@@ -98,6 +143,8 @@ bool iskw(char *w) {
     return false;
 }
 
+// Function to determine whether a certain combination of
+// characters are a valid identifier
 bool isiden(char *w) {
     if (strlen(w) < 1)
         return false;
@@ -110,6 +157,9 @@ bool isiden(char *w) {
     return true;
 }
 
+
+// Function to determine whether a certain combination of
+// characters are a valid literal
 bool islit(char *w) {
     // Check if its a dec digit
     bool isDecDig = true;
@@ -209,11 +259,24 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
             //###################
             //     OPERATOR
             //###################
-        else if (isop(buffer[current_len])) {
+        else if (isopc(buffer[current_len])) {
             // is Operator
             int i = 0;
-            while (isop(buffer[current_len + i])) {
+            while (isopc(buffer[current_len + i])) {
                 i++;
+
+                if (i == 2) {
+                    char *temp_op = (char *) malloc(3);
+                    memset(temp_op, '\0', i + 1);
+                    temp_op[0] = buffer[current_len];
+                    temp_op[1] = buffer[current_len + 1];
+                    if (isop(temp_op)) {
+                        break;
+                    } else {
+                        i = 1;
+                        break;
+                    }
+                }
                 if ((current_len + i) >= buf_len) {
                     break;
                 }
@@ -222,6 +285,7 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
             // Assign the text to the value
             value = (char *) malloc((i + 1) * sizeof(char));
             memset(value, '\0', i + 1);
+
             for (int j = 0; j < i; ++j) {
                 value[j] = buffer[current_len + j];
             }
@@ -229,7 +293,7 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
             // Update the current_len
             current_len += i;
             tseq[t_count].type = TOKEN_TYPE_OPERATOR;
-
+            printf("Current operator: %s\n", value);
         }
             //#####################
             //       SEPARATOR
