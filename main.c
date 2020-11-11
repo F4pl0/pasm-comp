@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
             nextFLag = FLAG_FILE;
         } else if (strcmp(argv[i], "-v") == 0) {
             v_output = true;
-            //printv("Verbose mode enabled.\n");
+            printv("Verbose mode enabled.\n");
         }
     }
 
@@ -38,10 +38,10 @@ int main(int argc, char *argv[]) {
 
     // Check if the file is open
     if ( !source_file ) {
-        printf("Unable to open %s\n", SOURCE_FILE_NAME);
+        printe("Unable to open %s\n", SOURCE_FILE_NAME);
         return 1;
     } else if ( source_file != NULL && v_output ) {
-        printf("Successfully opened %s\n", SOURCE_FILE_NAME);
+        printv("Successfully opened %s\n", SOURCE_FILE_NAME);
     }
 
     // Read the file and store it in temp. buffer
