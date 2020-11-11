@@ -226,7 +226,7 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
 
         }
             //#####################
-            //       COMMENT
+            //     //COMMENT
             //#####################
         else if ((current_len + 1) < buf_len &&
                  (buffer[current_len] == '/' && buffer[current_len + 1] == '/')) {
@@ -252,6 +252,43 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
                 value[j] = buffer[current_len + j];
             }
 
+            // Update the current_len
+            current_len += i;
+            tseq[t_count].type = TOKEN_TYPE_COMMENT;
+        }
+            //#####################
+            //     /*COMMENT*/
+            //#####################
+        else if ((current_len + 1) < buf_len &&
+                 (buffer[current_len] == '/' && buffer[current_len + 1] == '*')) {
+            // is the /*  */ variant of comment
+
+            int i = 2;
+            while (true){
+                while (buffer[current_len + i] != '*') {
+                    if (buffer[current_len + i] == '\n')
+                        current_line++;
+                    i++;
+                    if ((current_len + i + 1) >= buf_len) {
+                        break;
+                    }
+                }
+                if(current_len + i + 1 >= buf_len)
+                    break;
+                if(buffer[current_len + i + 1] == '/') {
+                    i += 2;
+                    break;
+                }
+                i++;
+            }
+
+            // Assign the text to the value
+            value = (char *) malloc((i + 1) * sizeof(char));
+            memset(value, '\0', i + 1);
+            for (int j = 0; j < i; ++j) {
+                value[j] = buffer[current_len + j];
+            }
+            printf("%s",value);
             // Update the current_len
             current_len += i;
             tseq[t_count].type = TOKEN_TYPE_COMMENT;
@@ -293,7 +330,6 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
             // Update the current_len
             current_len += i;
             tseq[t_count].type = TOKEN_TYPE_OPERATOR;
-            printf("Current operator: %s\n", value);
         }
             //#####################
             //       SEPARATOR
