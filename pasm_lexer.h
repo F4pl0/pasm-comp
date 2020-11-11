@@ -7,8 +7,6 @@
 #ifndef PASM_COMP_PASM_LEXER_H
 #define PASM_COMP_PASM_LEXER_H
 
-#endif //PASM_COMP_PASM_LEXER_H
-
 enum TYPES {
     TOKEN_TYPE_IDENTIFIER,
     TOKEN_TYPE_KEYWORD,
@@ -256,3 +254,5 @@ struct lexer_res pasm_tokenize(char *buffer, int buf_len) {
     lres.tcount = t_count;
     return lres;
 }
+
+#endif //PASM_COMP_PASM_LEXER_H
