@@ -21,6 +21,7 @@ void printUsage();
 int main(int argc, char *argv[]) {
 
     // Parse the input flags
+    // TODO Flag for destination file
     enum Flag nextFLag = (enum Flag) NULL;
 
     for (int i = 0; i < argc; ++i) {

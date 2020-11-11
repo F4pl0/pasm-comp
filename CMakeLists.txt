@@ -3,4 +3,4 @@ project(pasm_comp C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(pasm main.c pasm.h pasm_lexer.h utils.h pasm_parser.h)
+add_executable(pasm main.c pasm.h pasm_lexer.h utils.h)
